@@ -1,7 +1,9 @@
 #!/bin/bash
 make
 echo 'GCC'
-./gcc
+./gcc_sse2
+echo 'GCC - AVX'
+./gcc_avx
 echo 'ICC - Without Vectorization'
 ./icc_unvec
 echo 'ICC - SSE2'

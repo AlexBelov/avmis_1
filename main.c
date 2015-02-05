@@ -1,3 +1,4 @@
+#include <malloc.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -17,10 +18,12 @@ int main()
   double execTime;
   double startTime, endTime;
   long long t;
+  double * temp_b1;
+  double * temp_c1;
 
-  double *A = (double*)malloc(N * N * sizeof(double));
-  double *B = (double*)malloc(N * N * sizeof(double));
-  double *C = (double*)malloc(N * N * sizeof(double));
+  double *A = (double*)memalign(32, N * N * sizeof(double));
+  double *B = (double*)memalign(32, N * N * sizeof(double));
+  double *C = (double*)memalign(32, N * N * sizeof(double));
 
   for(int i = 0; i < N * N; i++)
   {
@@ -58,14 +61,15 @@ int main()
     }
   }
 #else
-  for(int i = 0; i < N ; i++)
+  for(int i = 0; i < N; i++)
   {
-    for(int j = 0; j < N ; j++)
+    for(int j = 0; j < N; j++)
     {
-      for (int k = 0 ; k < N ; k++)
-      {
-        C[i * N + j] += A[i * N + k] * B[k * N + j];
-      }
+      double temp = A[i * N + j];
+      temp_c1 = C + i * N;
+      temp_b1 = B + j * N;
+      for(int k = 0; k < N; k++)
+        temp_c1[k] += temp * temp_b1[k];
     }
   }
 #endif
