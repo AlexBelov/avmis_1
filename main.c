@@ -5,10 +5,18 @@
 
 #define N 512
 
+static __inline__ unsigned long long rdtsc(void)
+{
+  unsigned hi, lo;
+  __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
+  return ( (unsigned long long)lo)|( ((unsigned long long)hi)<<32 );
+}
+
 int main()
 {
   double execTime;
   double startTime, endTime;
+  long long t;
 
   double *A = (double*)malloc(N * N * sizeof(double));
   double *B = (double*)malloc(N * N * sizeof(double));
@@ -25,9 +33,10 @@ int main()
   struct timeval start;
 
   gettimeofday(&start, NULL);
+  t = rdtsc();
   startTime = (double)(start.tv_sec + start.tv_usec/1000000.0);
 
-#ifdef SSE2
+#ifdef ASM
   __m128d temp_a;
   __m128d temp_b;
   __m128d temp_c;
@@ -60,10 +69,12 @@ int main()
     }
   }
 #endif
+  t = rdtsc() - t;
   gettimeofday(&start, NULL);
   endTime = (double)(start.tv_sec + start.tv_usec/1000000.0);
   execTime = endTime - startTime;
 
+  printf("Clock cycle count is %llu\n", t);
   printf("Execution time is %2.3f seconds\n", execTime);
 
   return 0;
